@@ -99,6 +99,30 @@ export default function Home() {
         .logo-gradient {
           background: linear-gradient(135deg, #3b82f6, #8b5cf6);
         }
+        
+        .thumbnail-placeholder {
+          background: linear-gradient(45deg, #1e3a8a, #6d28d9);
+          position: relative;
+          overflow: hidden;
+        }
+        
+        .thumbnail-placeholder::before {
+          content: '';
+          position: absolute;
+          top: -2px;
+          left: -2px;
+          right: -2px;
+          bottom: -2px;
+          background: linear-gradient(45deg, #60a5fa, #a78bfa, #60a5fa);
+          border-radius: 0.5rem;
+          opacity: 0;
+          z-index: -1;
+          transition: opacity 0.3s ease;
+        }
+        
+        .stream-card:hover .thumbnail-placeholder::before {
+          opacity: 0.7;
+        }
       `}</style>
       
       <div className="min-h-screen">
@@ -180,9 +204,9 @@ export default function Home() {
                   >
                     <div className="stream-card glass-effect rounded-2xl overflow-hidden shadow-xl">
                       {/* Video Thumbnail Placeholder */}
-                      <div className="h-48 bg-gradient-to-r from-blue-900/20 to-purple-900/20 flex items-center justify-center">
-                        <div className="w-16 h-16 rounded-full bg-blue-600/20 flex items-center justify-center backdrop-blur-sm">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                      <div className="h-48 thumbnail-placeholder flex items-center justify-center">
+                        <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" viewBox="0 0 20 20" fill="currentColor">
                             <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd" />
                           </svg>
                         </div>
@@ -218,7 +242,7 @@ export default function Home() {
         </main>
 
         {/* Footer */}
-        <footer className="py-12 px-8 border-t border-gray-800">
+        <footer className="py-12 px-8 border-t border-gray-800 mt-12">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="flex items-center space-x-3 mb-6 md:mb-0">
@@ -245,4 +269,4 @@ export default function Home() {
       </div>
     </>
   );
-  }
+                      }
