@@ -1,0 +1,19 @@
+{
+  "streams": [
+    {
+      "id": "big-buck-bunny",
+      "title": "Big Buck Bunny",
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+    },
+    {
+      "id": "elephant-dream",
+      "title": "Elephant Dream",
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+    },
+    {
+      "id": "sintel",
+      "title": "Sintel",
+      "url": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4"
+    }
+  ]
+}
