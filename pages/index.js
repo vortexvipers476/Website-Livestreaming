@@ -1,262 +1,93 @@
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-
-const Logo = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 64 64"
-    fill="none"
-    className="w-10 h-10"
-  >
-    <defs>
-      <linearGradient id="grad1" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#3b82f6" />
-        <stop offset="100%" stopColor="#8b5cf6" />
-      </linearGradient>
-    </defs>
-    <circle cx="32" cy="32" r="30" stroke="url(#grad1)" strokeWidth="4" />
-    <polygon
-      points="26,20 46,32 26,44"
-      fill="url(#grad1)"
-      stroke="url(#grad1)"
-      strokeWidth="2"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+import { useState } from 'react';
+import { useRouter } from 'next/router';
+import { createGroup } from '../lib/groups';
 
 export default function Home() {
-  const [streams, setStreams] = useState([]);
+  const [groupName, setGroupName] = useState('');
+  const [selectedMovie, setSelectedMovie] = useState('');
   const [customUrl, setCustomUrl] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-  useEffect(() => {
-    fetch('/streams.json')
-      .then((res) => res.json())
-      .then((data) => setStreams(data.streams))
-      .catch((err) => console.error('Failed to load streams:', err));
-  }, []);
+  const movies = [
+    { id: 'movie1', title: 'Film Aksi', url: '/videos/movie1.mp4' },
+    { id: 'movie2', title: 'Film Komedi', url: '/videos/movie2.mp4' },
+    { id: 'movie3', title: 'Film Horor', url: '/videos/movie3.mp4' },
+  ];
 
-  const handleCustomStream = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (!customUrl) {
-      setError('Please enter a valid URL');
-      return;
-    }
-
+    setIsLoading(true);
+    
     try {
-      new URL(customUrl);
-      window.location.href = `/watch?url=${encodeURIComponent(customUrl)}`;
-    } catch {
-      setError('Invalid URL format');
+      const movieUrl = selectedMovie === 'custom' ? customUrl : 
+                       movies.find(m => m.id === selectedMovie)?.url;
+      
+      const groupId = await createGroup({
+        name: groupName,
+        movieUrl,
+      });
+      
+      router.push(`/group/${groupId}`);
+    } catch (error) {
+      console.error("Error creating group: ", error);
+      alert("Gagal membuat grup: " + error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen relative z-10 flex flex-col">
-      {/* Header */}
-      <header className="py-6 px-8">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10">
-              <Logo />
-            </div>
-            <h1 className="text-2xl font-bold gradient-text select-none">
-              StreamHub
-            </h1>
-          </div>
-          <nav>
-            <ul className="flex space-x-6 text-gray-300">
-              <li>
-                <a href="#" className="hover:text-blue-400 transition-colors">
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-blue-400 transition-colors">
-                  Explore
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-blue-400 transition-colors">
-                  About
-                </a>
-              </li>
-            </ul>
-          </nav>
+    <div className="container">
+      <h1>Nonton Film Bareng</h1>
+      <p>Buat grup publik untuk nonton film bersama teman-teman!</p>
+      
+      <form onSubmit={handleSubmit} className="group-form">
+        <div className="form-group">
+          <label>Nama Grup:</label>
+          <input
+            type="text"
+            value={groupName}
+            onChange={(e) => setGroupName(e.target.value)}
+            required
+            placeholder="Contoh: Movie Night 2023"
+          />
         </div>
-      </header>
-
-      {/* Main content */}
-      <main className="py-12 px-8 flex-grow">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero Section */}
-          <section className="text-center mb-20">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="block">Stream Your Favorite</span>
-              <span className="block gradient-text">Videos Anywhere</span>
-            </h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-              Watch predefined streams or add your own URL. Experience seamless
-              video streaming with our modern platform.
-            </p>
-
-            {/* Custom Stream Form */}
-            <div className="max-w-2xl mx-auto">
-              <form
-                onSubmit={handleCustomStream}
-                className="flex flex-col sm:flex-row gap-4"
-                noValidate
-              >
-                <input
-                  type="url"
-                  value={customUrl}
-                  onChange={(e) => {
-                    setCustomUrl(e.target.value);
-                    setError('');
-                  }}
-                  placeholder="Enter video URL (MP4, M3U8, etc.)"
-                  className="flex-grow p-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-                <button
-                  type="submit"
-                  className="btn-primary px-8 py-4 rounded-xl font-medium shadow-lg"
-                >
-                  Play Now
-                </button>
-              </form>
-              {error && <p className="text-red-400 mt-3">{error}</p>}
-            </div>
-          </section>
-
-          {/* Available Streams Section */}
-          <section>
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold">Featured Streams</h2>
-              <button className="text-blue-400 hover:text-blue-300 flex items-center gap-2 transition-colors">
-                View All
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 streams-grid">
-              {streams.map((stream) => (
-                <Link
-                  key={stream.id}
-                  href={`/watch?url=${encodeURIComponent(stream.url)}`}
-                  passHref
-                >
-                  <a className="stream-card rounded-2xl overflow-hidden shadow-xl flex flex-col">
-                    {/* Video Thumbnail Placeholder */}
-                    <div className="thumbnail-placeholder flex items-center justify-center">
-                      <div className="w-16 h-16 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-sm">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8 text-white"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </div>
-                    </div>
-
-                    <div className="p-6 flex flex-col flex-grow">
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-xl font-semibold group-hover:text-blue-400 transition-colors">
-                          {stream.title}
-                        </h3>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-900/30 text-blue-400 select-none">
-                          Live
-                        </span>
-                      </div>
-                      <p className="text-gray-400 text-sm truncate mb-4 flex-grow">
-                        {stream.url}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center text-sm text-gray-500 select-none">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="h-4 w-4 mr-1"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                            />
-                          </svg>
-                          1.2K views
-                        </div>
-                        <button className="text-blue-400 hover:text-blue-300 transition-colors select-none">
-                          Watch
-                        </button>
-                      </div>
-                    </div>
-                  </a>
-                </Link>
-              ))}
-            </div>
-          </section>
+        
+        <div className="form-group">
+          <label>Pilih Film:</label>
+          <select
+            value={selectedMovie}
+            onChange={(e) => setSelectedMovie(e.target.value)}
+            required
+          >
+            <option value="">-- Pilih Film --</option>
+            {movies.map(movie => (
+              <option key={movie.id} value={movie.id}>
+                {movie.title}
+              </option>
+            ))}
+            <option value="custom">URL Kustom</option>
+          </select>
         </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="py-12 px-8 border-t border-gray-800 mt-12 bg-gray-900 bg-opacity-70 backdrop-blur-md">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-6 md:mb-0">
-              <div className="w-8 h-8">
-                <Logo />
-              </div>
-              <span className="text-xl font-bold select-none">StreamHub</span>
-            </div>
-
-            <div className="flex space-x-6 text-gray-400">
-              <a href="#" className="hover:text-white transition-colors">
-                Terms
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Contact
-              </a>
-            </div>
+        
+        {selectedMovie === 'custom' && (
+          <div className="form-group">
+            <label>URL Video:</label>
+            <input
+              type="url"
+              value={customUrl}
+              onChange={(e) => setCustomUrl(e.target.value)}
+              required
+              placeholder="https://example.com/video.mp4"
+            />
           </div>
-
-          <div className="mt-8 text-center text-gray-500 text-sm select-none">
-            © {new Date().getFullYear()} StreamHub. All rights reserved.
-          </div>
-        </div>
-      </footer>
+        )}
+        
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Membuat Grup...' : 'Buat Grup Publik'}
+        </button>
+      </form>
     </div>
   );
-                    }
-                    
+        }
