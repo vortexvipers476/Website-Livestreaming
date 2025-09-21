@@ -10,7 +10,7 @@ export default function Home() {
   const router = useRouter();
 
   const movies = [
-    { id: 'movie1', title: 'Film Aksi', url: '/videos/movie1.mp4' },
+    { id: 'movie1', title: 'Film Aksi', url: '/v/lv_7549793564008484149_20250921124632.mp4' },
     { id: 'movie2', title: 'Film Komedi', url: '/videos/movie2.mp4' },
     { id: 'movie3', title: 'Film Horor', url: '/videos/movie3.mp4' },
   ];
